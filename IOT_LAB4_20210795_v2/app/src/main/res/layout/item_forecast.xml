@@ -47,6 +47,12 @@
             android:layout_height="wrap_content"
             android:text="Mínima: " />
 
+        <TextView
+            android:id="@+id/tvAveTemp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Media: " />
+
         <!-- Condición climática -->
         <TextView
             android:id="@+id/tvCondition"

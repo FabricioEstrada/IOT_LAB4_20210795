@@ -24,7 +24,8 @@ public class WeatherForecastApi {
 
     // Método para obtener el pronóstico de clima
     public void getForecast(String locationId, int days, final ForecastCallback callback) {
-        Call<ForecastResponse> call = weatherApiService.getForecast("ec24b1c6dd8a4d528c1205500250305", locationId, days);
+        String locationWithPrefix = "id:" + locationId;  // Concatenar 'id:' al idLocation
+        Call<ForecastResponse> call = weatherApiService.getForecast("ec24b1c6dd8a4d528c1205500250305", locationWithPrefix, days);
 
         Log.i("WeatherForecastApi", "Realizando solicitud a la API para el pronóstico de la ubicación: " + locationId);
 
@@ -33,6 +34,7 @@ public class WeatherForecastApi {
             public void onResponse(Call<ForecastResponse> call, Response<ForecastResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.i("WeatherForecastApi", "Respuesta exitosa. Datos del pronóstico obtenidos.");
+                    response.body().getLocation().setId(Integer.parseInt(locationId));
                     callback.onSuccess(response.body());
                 } else {
                     Log.e("WeatherForecastApi", "Error en la respuesta: " + response.code());

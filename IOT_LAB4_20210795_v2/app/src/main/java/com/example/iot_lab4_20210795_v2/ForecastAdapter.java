@@ -23,7 +23,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView locationNameText, locationIdText, dateText, maxTempText, minTempText, conditionText;
+        TextView locationNameText, locationIdText, dateText, maxTempText, minTempText, conditionText, aveTempText;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -32,6 +32,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
             dateText = itemView.findViewById(R.id.tvDate);
             maxTempText = itemView.findViewById(R.id.tvMaxTemp);
             minTempText = itemView.findViewById(R.id.tvMinTemp);
+            aveTempText = itemView.findViewById(R.id.tvAveTemp);
             conditionText = itemView.findViewById(R.id.tvCondition);
         }
     }
@@ -51,9 +52,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ViewHo
         // Aquí usamos la ubicación que está fuera de la lista de ForecastDay
         holder.locationNameText.setText(location.getName()); // Nombre de la ubicación
         holder.locationIdText.setText("ID: " + location.getId()); // ID de la ubicación
-        holder.dateText.setText(forecastDay.getDate()); // Fecha del pronóstico
-        holder.maxTempText.setText("Máxima: " + forecastDay.getDay().getMaxtemp_c() + "°C");
-        holder.minTempText.setText("Mínima: " + forecastDay.getDay().getMintemp_c() + "°C");
+        holder.dateText.setText("Fecha del pronóstico: " + forecastDay.getDate()); // Fecha del pronóstico
+        holder.maxTempText.setText("Máxima temperatura: " + forecastDay.getDay().getMaxtemp_c() + "°C");
+        holder.minTempText.setText("Mínima temperatura: " + forecastDay.getDay().getMintemp_c() + "°C");
+        holder.aveTempText.setText("Temperatura Promedio: " + forecastDay.getDay().getAvgtemp_c() + "°C");
         holder.conditionText.setText(forecastDay.getDay().getCondition().getText()); // Condición climática
     }
 

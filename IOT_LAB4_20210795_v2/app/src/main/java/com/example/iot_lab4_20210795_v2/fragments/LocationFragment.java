@@ -3,7 +3,8 @@ package com.example.iot_lab4_20210795_v2.fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,6 +30,7 @@ public class LocationFragment extends Fragment {
     private Button searchButton;
     private List<Location> locationList = new ArrayList<>();
     private LocationAdapter adapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -51,15 +53,9 @@ public class LocationFragment extends Fragment {
                 Bundle bundle = new Bundle();
                 bundle.putString("idLocation", idLocation);
 
-                // Crear una instancia de ForecastFragment
-                ForecastFragment forecastFragment = new ForecastFragment();
-                forecastFragment.setArguments(bundle);
-
-                // Realizar la transacción de fragmentos para mostrar el ForecastFragment
-                FragmentTransaction transaction = getFragmentManager().beginTransaction();
-                transaction.replace(R.id.nav_host_fragment, forecastFragment);
-                transaction.addToBackStack(null); // Permitir que el usuario regrese
-                transaction.commit();
+                // Obtener el NavController para realizar la navegación
+                NavController navController = Navigation.findNavController(view);
+                navController.navigate(R.id.action_locationFragment_to_forecastFragment, bundle);
             }
         });
 
@@ -74,6 +70,7 @@ public class LocationFragment extends Fragment {
 
         return view;
     }
+
     private void buscarUbicaciones(String query) {
         new WeatherLocationApi().getLocations(query, new WeatherLocationApi.WeatherCallback() {
             @Override

@@ -3,7 +3,16 @@ package com.example.iot_lab4_20210795_v2;
 public class Day {
     private double maxtemp_c;
     private double mintemp_c;
+    private double avgtemp_c;
     private Condition condition;
+
+    public double getAvgtemp_c() {
+        return avgtemp_c;
+    }
+
+    public void setAvgtemp_c(double avgtemp_c) {
+        this.avgtemp_c = avgtemp_c;
+    }
 
     // Getter y setter para maxtemp_c
     public double getMaxtemp_c() {

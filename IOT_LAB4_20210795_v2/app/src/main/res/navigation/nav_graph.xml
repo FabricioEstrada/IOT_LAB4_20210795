@@ -9,7 +9,8 @@
         android:id="@+id/locationFragment"
         android:name="com.example.iot_lab4_20210795_v2.fragments.LocationFragment"
         android:label="fragment_location"
-        tools:layout="@layout/fragment_location" />
+        tools:layout="@layout/fragment_location"
+        />
     <fragment
         android:id="@+id/forecastFragment"
         android:name="com.example.iot_lab4_20210795_v2.fragments.ForecastFragment"

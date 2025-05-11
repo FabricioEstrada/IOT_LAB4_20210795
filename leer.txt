@@ -1,0 +1,6 @@
+Realizado por Fabricio Estrada - 20210795
+
+Al inicio se realizó fragments y navegation de manera directa, pero no funcionaba, es decir, no redirigía a nada el navegation
+por lo tanto se creó un proyecto denuevo y se aplicó el método gráfico siguiendo los pasos que hizo el profe en clase.
+
+Gran parte de este laboratorio fue reutilizando código del lab3 y también asesorado por la IA ChatGPT

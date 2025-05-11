@@ -1,4 +1,4 @@
-package com.example.iot_lab4_20210795_v2;
+package com.example.iot_lab4_20210795_v2.Location;
 
 import com.google.gson.annotations.SerializedName;
 

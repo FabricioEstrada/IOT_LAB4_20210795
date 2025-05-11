@@ -1,6 +1,8 @@
-package com.example.iot_lab4_20210795_v2;
+package com.example.iot_lab4_20210795_v2.weather_api;
 
 import android.util.Log;
+
+import com.example.iot_lab4_20210795_v2.Location.LocationResponse;
 
 import java.util.List;
 
@@ -10,11 +12,11 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class WeatherApi {
+public class WeatherLocationApi {
 
     private WeatherApiService weatherApiService;
 
-    public WeatherApi() {
+    public WeatherLocationApi() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.weatherapi.com/v1/")
                 .addConverterFactory(GsonConverterFactory.create())

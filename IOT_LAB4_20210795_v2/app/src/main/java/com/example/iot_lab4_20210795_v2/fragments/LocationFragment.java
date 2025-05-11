@@ -3,6 +3,7 @@ package com.example.iot_lab4_20210795_v2.fragments;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -13,12 +14,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.iot_lab4_20210795_v2.ArrayAdapterRecycler;
-import com.example.iot_lab4_20210795_v2.Location;
-import com.example.iot_lab4_20210795_v2.LocationAdapter;
-import com.example.iot_lab4_20210795_v2.LocationResponse;
+import com.example.iot_lab4_20210795_v2.Location.Location;
+import com.example.iot_lab4_20210795_v2.Location.LocationAdapter;
+import com.example.iot_lab4_20210795_v2.Location.LocationResponse;
 import com.example.iot_lab4_20210795_v2.R;
-import com.example.iot_lab4_20210795_v2.WeatherApi;
+import com.example.iot_lab4_20210795_v2.weather_api.WeatherLocationApi;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,6 @@ public class LocationFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflar el layout para este fragmento
         View view = inflater.inflate(R.layout.fragment_location, container, false);
 
         recyclerView = view.findViewById(R.id.rvLocations);
@@ -40,7 +39,30 @@ public class LocationFragment extends Fragment {
         searchButton = view.findViewById(R.id.btnBuscar);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new LocationAdapter(locationList);
+
+        // Crear el adaptador y pasar el listener
+        adapter = new LocationAdapter(locationList, new LocationAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Location location) {
+                // Aquí se pasa el objeto Location cuando se hace clic en el item
+                String idLocation = String.valueOf(location.getId());  // Obtener el idLocation
+
+                // Crear un Bundle para pasar el idLocation al ForecastFragment
+                Bundle bundle = new Bundle();
+                bundle.putString("idLocation", idLocation);
+
+                // Crear una instancia de ForecastFragment
+                ForecastFragment forecastFragment = new ForecastFragment();
+                forecastFragment.setArguments(bundle);
+
+                // Realizar la transacción de fragmentos para mostrar el ForecastFragment
+                FragmentTransaction transaction = getFragmentManager().beginTransaction();
+                transaction.replace(R.id.nav_host_fragment, forecastFragment);
+                transaction.addToBackStack(null); // Permitir que el usuario regrese
+                transaction.commit();
+            }
+        });
+
         recyclerView.setAdapter(adapter);
 
         searchButton.setOnClickListener(v -> {
@@ -53,7 +75,7 @@ public class LocationFragment extends Fragment {
         return view;
     }
     private void buscarUbicaciones(String query) {
-        new WeatherApi().getLocations(query, new WeatherApi.WeatherCallback() {
+        new WeatherLocationApi().getLocations(query, new WeatherLocationApi.WeatherCallback() {
             @Override
             public void onSuccess(List<LocationResponse> locations) {
                 locationList.clear();

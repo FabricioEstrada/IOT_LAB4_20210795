@@ -1,11 +1,17 @@
 package com.example.iot_lab4_20210795_v2.fragments;
 
+import android.app.AlertDialog;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,6 +39,17 @@ public class ForecastFragment extends Fragment {
     private EditText locationInput, daysInput;
     private Button searchButton;
     private String idLocation;
+
+    // Sensor Manager
+    private SensorManager sensorManager;
+    private Sensor accelerometer;
+    private float[] gravity = new float[3];
+    private float[] linear_acceleration = new float[3];
+    private boolean puedeMostrarDialogo = true; // Controla si se puede mostrar diálogo
+    private final long TIEMPO_ESPERA = 3000; // 5 segundos de espera
+
+    private final Handler handler = new Handler(); // Importante: importar android.os.Handler
+    private static final float NOISE = (float) 25; // Umbral de aceleración (25 m/s²)
 
 
     @Override
@@ -92,6 +109,12 @@ public class ForecastFragment extends Fragment {
             obtenerPronostico(id, days);
         });
 
+        // Configuración del acelerómetro
+        sensorManager = (SensorManager) getContext().getSystemService(getContext().SENSOR_SERVICE);
+        if (sensorManager != null) {
+            accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        }
+
         return view;
     }
     private void obtenerPronostico(String location, int days) {
@@ -120,6 +143,10 @@ public class ForecastFragment extends Fragment {
 
                         // Actualizar el adaptador
                         adapter.notifyDataSetChanged();
+                        // **Registrar el sensor solo si la lista no está vacía**
+                        if (sensorManager != null && accelerometer != null) {
+                            sensorManager.registerListener(sensorEventListener, accelerometer, SensorManager.SENSOR_DELAY_UI);
+                        }
                     } else {
                         // Si no hay datos de pronóstico, mostrar un Toast
                         Toast.makeText(getContext(), "No hay datos disponibles para el pronóstico.", Toast.LENGTH_SHORT).show();
@@ -136,5 +163,89 @@ public class ForecastFragment extends Fragment {
                 Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+
+    // Sensor Event Listener para detectar el movimiento
+    private final SensorEventListener sensorEventListener = new SensorEventListener() {
+        private final float[] gravity = new float[3];
+        private final float[] linear_acceleration = new float[3];
+        private final float alpha = 0.8f;
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                // Estimamos la gravedad con filtro paso bajo
+                gravity[0] = alpha * gravity[0] + (1 - alpha) * event.values[0];
+                gravity[1] = alpha * gravity[1] + (1 - alpha) * event.values[1];
+                gravity[2] = alpha * gravity[2] + (1 - alpha) * event.values[2];
+
+                // Restamos la gravedad para obtener aceleración lineal
+                linear_acceleration[0] = event.values[0] - gravity[0];
+                linear_acceleration[1] = event.values[1] - gravity[1];
+                linear_acceleration[2] = event.values[2] - gravity[2];
+
+                Log.d("SensorData", "Aceleración Lineal: X=" + linear_acceleration[0] + " Y=" + linear_acceleration[1] + " Z=" + linear_acceleration[2]);
+                Log.d("SensorData", "Valores del sensor: X=" + event.values[0] + " Y=" + event.values[1] + " Z=" + event.values[2]);
+                Log.d("SensorData", "graveda: Xg=" + gravity[0] + " Yg=" + gravity[1] + " Zg=" + gravity[2]);
+
+                float totalAcceleration = (float) Math.sqrt(
+                        linear_acceleration[0] * linear_acceleration[0] +
+                                linear_acceleration[1] * linear_acceleration[1] +
+                                linear_acceleration[2] * linear_acceleration[2]
+                );
+
+                if (totalAcceleration > NOISE) {
+                    Log.d("SensorData", "Aceleración Total: " + totalAcceleration);
+                    mostrarDialogoConfirmacion();
+                }
+            }
+        }
+
+        @Override
+        public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        }
+    };
+
+
+    // Mostrar el diálogo para confirmar la acción
+    private void mostrarDialogoConfirmacion() {
+        if (forecastList.isEmpty()) {
+            // No mostrar nada si no hay elementos que eliminar
+            return;
+        }
+        if (!puedeMostrarDialogo) return;
+
+        puedeMostrarDialogo = false;
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Confirmar Deshacer Acción")
+                .setMessage("¿Deseas eliminar los últimos pronósticos obtenidos?")
+                .setPositiveButton("Sí", (dialog, which) -> {
+                    forecastList.clear();
+                    adapter.notifyDataSetChanged();
+                    Toast.makeText(getContext(), "Vista de pronósticos limpiada", Toast.LENGTH_SHORT).show();
+                    // Detener la escucha de eventos del sensor si la lista está vacía
+                    if (forecastList.isEmpty()) {
+                        if (sensorManager != null) {
+                            sensorManager.unregisterListener(sensorEventListener);
+                        }
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
+
+        // Espera 5 segundos para permitir nuevos diálogos
+        handler.postDelayed(() -> puedeMostrarDialogo = true, TIEMPO_ESPERA);
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Desregistrar el sensor cuando el fragmento se detiene
+        if (sensorManager != null) {
+            sensorManager.unregisterListener(sensorEventListener);
+        }
     }
 }

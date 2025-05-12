@@ -16,13 +16,15 @@
             android:id="@+id/editLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="idLocación" />
+            android:hint="ID del lugar a buscar"
+            android:textColorHint="#616161" />
 
         <EditText
             android:id="@+id/editDay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="día de Interés"
+            android:hint="Fecha de interés: YYYY-MM-dd"
+            android:textColorHint="#616161"
             android:layout_marginTop="8dp" />
 
         <Button

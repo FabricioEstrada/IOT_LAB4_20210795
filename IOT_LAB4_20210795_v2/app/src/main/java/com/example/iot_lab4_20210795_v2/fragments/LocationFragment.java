@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.example.iot_lab4_20210795_v2.Location.Location;
 import com.example.iot_lab4_20210795_v2.Location.LocationAdapter;
@@ -76,20 +77,26 @@ public class LocationFragment extends Fragment {
             @Override
             public void onSuccess(List<LocationResponse> locations) {
                 locationList.clear();
-                for (LocationResponse locationResponse : locations) {
+                if (locations.isEmpty()) {
+                    // Si no se encontraron ubicaciones, mostrar un Toast
+                    Toast.makeText(getContext(), "No se encontraron ubicaciones", Toast.LENGTH_SHORT).show();
+                } else {
                     // Llenar la lista de ubicaciones con los datos recibidos
-                    locationList.add(new Location(locationResponse.getId(), locationResponse.getName(),
-                            locationResponse.getRegion(), locationResponse.getCountry(),
-                            locationResponse.getLat(), locationResponse.getLon()));
+                    for (LocationResponse locationResponse : locations) {
+                        locationList.add(new Location(locationResponse.getId(), locationResponse.getName(),
+                                locationResponse.getRegion(), locationResponse.getCountry(),
+                                locationResponse.getLat(), locationResponse.getLon()));
+                    }
+                    // Notificar al adaptador que los datos cambiaron
+                    adapter.notifyDataSetChanged();
                 }
-                // Notificar al adaptador que los datos cambiaron
-                adapter.notifyDataSetChanged();
             }
 
             @Override
             public void onFailure(String errorMessage) {
                 // Manejar el error si la solicitud falla
                 Log.e("LocationFragment", "Error al obtener ubicaciones: " + errorMessage);
+                Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
             }
         });
     }

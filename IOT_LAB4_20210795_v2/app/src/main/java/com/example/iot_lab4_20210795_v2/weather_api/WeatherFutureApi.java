@@ -10,10 +10,10 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class WeatherForecastApi {
+public class WeatherFutureApi {
     private WeatherApiService weatherApiService;
 
-    public WeatherForecastApi() {
+    public WeatherFutureApi() {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("https://api.weatherapi.com/v1/")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -22,22 +22,22 @@ public class WeatherForecastApi {
         weatherApiService = retrofit.create(WeatherApiService.class);
     }
 
-    // Método para obtener el pronóstico de clima
-    public void getForecast(String locationId, int days, final ForecastCallback callback) {
+    // Método para obtener el pronóstico por hora (future.json)
+    public void getFutureForecast(String locationId, String date, final FutureForecastCallback callback) {
         String locationWithPrefix = "id:" + locationId;  // Concatenar 'id:' al idLocation
-        Call<ForecastResponse> call = weatherApiService.getForecast("ec24b1c6dd8a4d528c1205500250305", locationWithPrefix, days);
+        Call<ForecastResponse> call = weatherApiService.getFutureForecast("ec24b1c6dd8a4d528c1205500250305", locationWithPrefix, date);
 
-        Log.i("WeatherForecastApi", "Realizando solicitud a la API para el pronóstico de la ubicación: " + locationId);
+        Log.i("WeatherFutureApi", "Realizando solicitud a la API para el pronóstico futuro de la ubicación: " + locationId);
 
         call.enqueue(new Callback<ForecastResponse>() {
             @Override
             public void onResponse(Call<ForecastResponse> call, Response<ForecastResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    Log.i("WeatherForecastApi", "Respuesta exitosa. Datos del pronóstico obtenidos.");
+                    Log.i("WeatherFutureApi", "Respuesta exitosa. Datos del pronóstico futuro obtenidos.");
                     response.body().getLocation().setId(Integer.parseInt(locationId));
                     callback.onSuccess(response.body());
                 } else {
-                    Log.e("WeatherForecastApi", "Error en la respuesta: " + response.code());
+                    Log.e("WeatherFutureApi", "Error en la respuesta: " + response.code());
                     callback.onFailure("No hay datos 😔, prueba otro ID o combinación");
                 }
             }
@@ -49,7 +49,8 @@ public class WeatherForecastApi {
         });
     }
 
-    public interface ForecastCallback {
+    // Callback para manejar la respuesta
+    public interface FutureForecastCallback {
         void onSuccess(ForecastResponse forecastResponse);
         void onFailure(String errorMessage);
     }

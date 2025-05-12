@@ -24,4 +24,12 @@ public interface WeatherApiService {
             @Query("days") int days
     );
 
+    @GET("future.json")
+    Call<ForecastResponse> getFutureForecast(
+            @Query("key") String apiKey,
+            @Query("q") String idLocation,
+            @Query("dt") String futureDate
+    );
+
+
 }

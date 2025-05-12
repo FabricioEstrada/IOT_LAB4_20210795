@@ -42,7 +42,7 @@ public class WeatherLocationApi {
                 } else {
                     // Si hubo un error
                     Log.e("WeatherApi", "Error en la respuesta: " + response.code());
-                    callback.onFailure("Error en la respuesta: " + response.code());
+                    callback.onFailure("No hay datos 😔, prueba otro ID o combinación");
                 }
             }
 
